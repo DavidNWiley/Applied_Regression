@@ -1,0 +1,63 @@
+---
+title: "Lab 12"
+author: "David Wiley / Duy Truong"
+date: "March 26, 2019"
+output: pdf_document
+---
+
+Using the Hald cement data in Table B.21 and the tools learned today in class, determine if  multi-collinearity is present or not.  If it exists, identify the variables that possibly cause collinearity.
+
+
+```{r}
+# DATA 
+
+dat=read.csv("/home/david/Documents/2019 Spring/Applied Regression/Labs_HW/Data_Sets/Appendices/data-table-B21.csv", header = T)
+y = dat$y
+x1 = dat$x_1
+x2 = dat$x_2
+x3 = dat$x_3
+x4 = dat$x_4
+
+fit = lm(y~x1+x2+x3+x4, dat)
+summary(fit)
+```
+
+
+Using the eigensystem analysis of $X'X$ (denoted $\lambda_{1},\lambda_{2},...,\lambda_{p}$), we measure multicollinearity:
+
+$$k=\frac{\lambda_{max}}{\lambda_{min}}$$
+
+Where:
+$k$ < 100, no serious problem
+100 < $k$ < 1000, moderate to strong multicollinearity
+$k$ > 1000, strong multicollinearity
+
+```{r}
+
+stdx = scale(dat[,3:6])  
+exx = eigen( t(stdx)%*%stdx) 
+exx
+max(exx$values)/min(exx$values) 
+
+
+```
+
+Since we know there is multicollinearity, we need to find which regressors are involved. To do that we need to measure each eigenvalue condition index: 
+
+$$k=\frac{\lambda_{max}}{\lambda_{j}}$$
+
+
+```{r}
+max(exx$values)/exx$values  
+
+```
+
+We measure linear dependency by analyzing if the condition index for a regressor is larger than 1000. 
+From the data we can see that the fourth regressor has a condition index of 1376.881. This leads us to believe that the fourth regressor is involved with multicollinearity. The rest of the regressors have indices significantly lower than 1000. 
+
+
+
+
+
+
+

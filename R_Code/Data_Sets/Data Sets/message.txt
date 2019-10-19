@@ -1,0 +1,19 @@
+
+     ---  Welcome to the Linear Regression ftp area  ---
+
+You will find here a data sets that accompany Introduction to Linear
+Regression Analysis, 4e by Douglas C. Montgomery, Elizabeth A. Peck,
+and G. Geoffrey Vining
+ 
+Download the zip file and extract the contents using a program such as WINZIP.
+
+
+Supplementary content for professors in the form of PowerPoint files is available
+
+upon request from Wiley. To obtain these files, please send a request to
+
+Jacqueline Palmieri at jpalmieri@wiley.com for more information.
+
+
+
+----------- Thank you for visiting John Wiley & Sons --------------

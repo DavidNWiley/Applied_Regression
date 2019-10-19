@@ -1,0 +1,121 @@
+---
+title: "TruongDuy 1.23.19"
+author: "Duy Truong"
+date: "January 23, 2019"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+$ \hat{y} = b_0 + b_1x $
+
+
+```{r, echo = FALSE}
+purity <- read.csv("C:\\Users\\Sundas Mohi-Truong\\Documents\\UHD\\SPRING 2019\\LinRegression\\Data Sets\\Chapter 2\\Problems\\data-prob-2-7.csv", header = TRUE)
+
+```
+
+
+PROBLEM 1 :
+
+Using the purity data from Problem 2.7, calculate the estimates for the true slopes and true intercept using RMarkdown
+
+
+
+```{r, echo=FALSE}
+## Set-Up
+yi = purity$hydro
+xi = purity$purity
+n=length(purity$hydro)
+  
+Sxy <- sum(yi*xi) - ((sum(yi)*sum(xi))/n)
+Sxx <- sxx <- sum(xi^2) - ((sum(xi))^2 / n)
+B1 <- Sxy/Sxx
+
+print(B1)
+
+Bo <- mean(yi) - B1*mean(xi)
+print(Bo)
+
+
+```
+
+PROBLEM 2: 
+
+Calculate the estimate of the true error variance. Interpret
+
+
+```{r, echo=FALSE}
+## Residual /Error Sum of Squares/Estimator
+SSres <- sum((yi-mean(yi))^2) - B1*Sxy
+MSres = SSres/(n-2)
+print(MSres)
+
+## The smaller our MSres is the more reliable our data is since there is less variability
+```
+
+
+The smaller our MSres is the more reliable our data is since there is less variability
+
+
+
+PROBLEM 3:
+
+Plot the data and the fitted simple linear regression line in one graph
+
+```{r, echo = FALSE}
+## Plotting
+
+plot(xi,yi,ylab = 'Hydro', xlab = 'Purity', main = "Purity vs Hydro", sub = "Duy Truong")
+# print(lm(yi~xi,purity))
+abline(Bo,B1, lwd = 2, col='blue')
+```
+
+PROBLEM 4:
+
+Verify (using R) Properties 1,2,4 and 5 of the least squares fit
+
+```{r, echo = FALSE}
+## Verification
+yHat = Bo+B1*xi
+ei = yi - yHat
+sum(yi-yHat)
+P1 <- sum(yi-yHat) == sum(ei)
+P2 <- round(sum(yi)) == round(sum(yHat))
+P4 <- (sum(xi*ei))
+P5 <- (sum(yHat*ei))
+Verify = data.frame(P1,P2,P4,P5)
+Verify
+```
+
+
+HOMEWORK 2:
+
+```{r, echo=FALSE}
+#######################
+# T-Stat / Hypothesis 
+#######################
+seB1h <- sqrt(MSres/Sxx)
+tstat1 = (B1/seB1h)
+tstat1 
+
+#two-sided P-value Approach
+pval01 <- 2*pt(-abs(tstat1), df=n-2)
+pval01
+
+#### ANOVA
+SSr = sum((yHat - mean(yi))^2)
+MSr = SSr/1
+SSt = SSr+SSres
+F0 = MSr/MSres
+F0
+pf(F0, df1 =1, df2 = n-2, lower.tail=FALSE)
+
+anova(lm(yi~xi,purity))
+```
+

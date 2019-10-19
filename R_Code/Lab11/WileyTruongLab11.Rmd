@@ -1,0 +1,74 @@
+---
+title: "Lab 11"
+author: "David Wiley / Duy Truong"
+date: "March 24, 2019"
+output: pdf_document
+---
+
+### Using Data from Problem 3.11:
+
+## a.
+
+Determine if (x1,x2,x3,x4,x5) = (411, 22.5, 14.2, 40.3, 4.07) is an interpolation or extrapolation point. Should you be concerned in your previous estimation and prediction procedure?
+
+
+```{r}
+# DATA 
+
+dat=read.csv("/home/david/Documents/2019 Spring/Applied Regression/Labs_HW/Data_Sets2/Data Sets/Appendices/data-table-B7.csv", header = T)
+y = dat$y
+x1 = dat$x1
+x2 = dat$x2
+x3 = dat$x3
+x4 = dat$x4
+x5 = dat$x5
+
+fit = lm(y~x1+x2+x3+x4+x5, dat)
+summary(fit)
+dat
+```
+
+
+```{r}
+
+x = as.matrix(cbind(1,dat[,1:5]))
+H = x%*%solve(t(x)%*%x)%*%t(x)
+
+eh = diag(H)
+
+hmax = max(eh)
+
+x01 = c(1, 411, 22.5, 14.2, 40.3, 4.07)
+
+x01_point = t(x01)%*%solve(t(x)%*%x)%*%x01 
+
+```
+
+Our hmax is $`r hmax`$ and the new point is $`r x01_point`$. Since it is below the max we can say it is an interpolation point. 
+We shouldn't be concerned with our previous estimiation and prediction procedure because this point isn't necessarily a data point used to fit the model. It's just a point that fits within the ellipsoid that encompasses our given data points. 
+
+## b.
+
+Is multi-collinearity present?
+
+```{r}
+library(car)
+vif(fit)
+```
+
+Our values are all 1 which is less than 10 as well as 5. Therefore, we don't have a concern for multi-collinearity. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,90 @@
+---
+title: "Group8_LabHW1"
+author: "David Wiley"
+date: "January 23, 2019"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Lab/HW 1
+
+***
+1. Using the Purity Data from Problem 2.7, calculate the estimates for the true slope 
+    and the true intercept using RMarkdown.
+2. Calculate the estimate of the true error variance. Interpret.
+3. Plot the data and the fitted simple linear regression line in one graph. 
+4. Verify (using R) Properties 1, 2, and 4, of the least squares fit. 
+
+```{r}
+# Reading in data
+pd <- read.csv("C:\\Users\\Nick\\Documents\\0_Spring 2019\\Applied Regression\\Labs_HW\\Data_Sets\\Chapter 2\\Problems\\data-prob-2-7.csv", header = T)
+
+# Assigning values
+xi <- pd$purity
+
+yi <- pd$hydro
+
+n <- length(pd$purity)
+
+pd
+
+```
+
+
+```{r}
+# Performing calculations
+##########################
+
+# Estimating the true slope
+Sxx <- sum(xi^2) - (sum(xi))^2 / length(xi)
+
+Sxy <- sum(xi * yi) - ((sum(xi) * sum(yi)) / length(xi))
+
+b1 <- Sxy / Sxx
+b1
+
+# Estimating the true intercept
+b0 <- mean(yi) - (b1 * mean(xi))
+b0
+
+
+
+
+# Estimating true error variance
+# Res = y - yH => y - (b0 + xi * b1)
+SSres <- sum((yi - mean(yi))^2) - (b1 * Sxy)
+MSres <- SSres / (n - 2)
+MSres
+
+
+```
+
+
+# Purity Data Plot
+
+
+$\hat{y} = \hat{\beta_0} + \hat{\beta_1}x$ 
+
+
+```{r pressure, echo=FALSE, fig.align="center"}
+
+plot(xi, yi,xlab = "Purity", ylab = "Hydro", main = "Purity Data Plot")
+abline(a = b0, b = b1)
+
+
+```
+
+```{r}
+
+seB0 <- sqrt(MSres * (1/n + mean(X)^2 / Sxx))
+
+```
+
+
+

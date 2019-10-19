@@ -1,0 +1,43 @@
+---
+title: "Lab14"
+author: "David Wiley / Duy Truong"
+date: "March 27, 2019"
+output: pdf_document
+---
+
+### Reading in Data
+
+```{r}
+dat = read.csv("/home/david/Documents/2019 Spring/Applied Regression/Labs_HW/Data_Sets/Appendices/data-table-B-15.csv", header = T)
+
+
+fit = lm(MORT~., dat)
+
+
+summary(fit)
+```
+
+# Finding the influence observations in data:
+
+
+```{r}
+influence.measures(fit)
+```
+
+
+# Looking at the matrix of data:
+
+It looks like there are 8 possible influential observations.
+```{r}
+summary(fit)
+
+summary(lm(MORT~., dat[-4,]))#
+summary(lm(MORT~., dat[-7,]))#
+
+summary(lm(MORT~., dat[-50,]))#
+
+summary(lm(MORT~., dat[-60,]))#
+
+```
+
+Removing each of the possible influential observations, we can see that the 4th, 7th, 50th, and 60th observations have a high influence on the model. Whereas the other observations show they have little influence on the model. We would have to find out if the data observation is indeed a valid observation. If not, then we can just simply delete the observation. If so, then we cannot delete it but could possibly downweight the observations in proportion to residual magnitude or influence.

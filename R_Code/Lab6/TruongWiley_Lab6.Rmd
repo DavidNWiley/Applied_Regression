@@ -1,0 +1,81 @@
+---
+title: "Group 8 - Lab 6"
+author: "David Wiley"
+date: "February 16, 2019"
+output: pdf_document
+---
+
+## Problem 2.11
+
+Consider the weight and blood pressure data in Problem 2.10. Fit a no -
+intercept model to the data and compare it to the model obtained in Problem
+2.10. Which model would you conclude is superior?
+
+
+```{r}
+
+# Reading in the information for Weight and Symbolic BP
+dat=read.csv("C:\\Users\\Nick\\Documents\\0_Spring 2019\\Applied Regression\\Labs_HW\\Data_Sets\\Chapter 2\\Problems\\data-prob-2-10.csv", header = T)
+y = dat[,2]
+x = dat[,1]
+n = length(x)
+
+# Calculating variables
+Sxx = sum(x^2) - sum(x)^2 / n
+Sxy = sum(x*y) - sum(x)*sum(y) / n
+
+B1H = Sxy / Sxx
+B0H = mean(y) - mean(x)*B1H
+
+yH = B0H + sort(x) * B1H
+
+SSr = B1H * Sxy
+SSres = sum((y - mean(y))^2) - SSr
+  
+SSt = SSr + SSres
+MSres = SSres / (n-2)
+
+seB1H = sqrt(MSres/Sxx)
+seB0H = sqrt(MSres * (1 / n + mean(x)^2 / Sxx))
+
+MSr = SSr/1
+
+F0 = MSr / MSres
+
+
+# Estimating the correlation coefficient
+r = Sxy / sqrt(Sxx * SSt)
+r
+R2 = SSr / SSt
+R2
+
+summary(lm(y~x))
+
+```
+
+## Interpretation of first model:
+
+The MSE for the first model is $```r R2```$.
+
+### Setting up the no-intercept model:
+
+```{r}
+
+summary(lm(y~x-1))
+MSE2 = 12.6^2
+
+```
+
+## Interpretation:
+
+Comparing the two models we can see: 
+
+### The model with no intercept:
+$$\hat{y}=0.792x$$
+With an MSE of $```r MSE2```$.
+
+### The model with an intercept:
+$$\hat{y}=```r B0H```+```r B1H```*x$$ 
+with an MSE of $```r R2```$.
+
+The test on $\hat{\beta}_{0}$ is significant. Therefore, the first model would be the better of the two to use.

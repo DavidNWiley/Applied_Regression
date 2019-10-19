@@ -1,0 +1,110 @@
+---
+title: "TruongWileyHW5"
+author: "Duy Truong"
+date: "February 6, 2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+dat <- read.csv("C:\\Users\\Sundas Mohi-Truong\\Documents\\UHD\\SPRING 2019\\LinRegression\\Data Sets\\Chapter 2\\Problems\\data-prob-2-12.csv", header = TRUE)
+```
+
+The number of pounds of steam used per month at a plant is thought to be
+related to the average monthly ambient temperature. The past year ’ s usages
+and temperatures follow
+
+```{r, echo = FALSE}
+xi <- dat$temp
+yi <- dat$usage
+n=length(xi)
+fit = lm(yi~xi)
+summary(fit)
+
+Sxx=sum(xi^2)-sum(xi)^2/n
+Sxy=sum(xi*yi)-sum(xi)*sum(yi)/n
+
+B1H = Sxy/ Sxx
+B0H = mean(yi)-mean(xi)*B1H
+
+
+yH=B0H + sort(xi)*B1H
+
+res = yi- (B0H + xi*B1H)
+SSres = sum(res^2)
+MSres = SSres/(n-2)
+
+seB0H = sqrt(MSres*( 1/n + mean(xi)^2/Sxx ) )
+seB1H = sqrt(MSres/Sxx)
+tstat0 = (B0H-0)/seB0H
+tstat1 = (B1H-0)/seB1H
+
+#ANOVA
+SSr= sum( (yH-mean(yi))^2 )
+MSr= SSr/1
+SSt= SSr+SSres
+F0=MSr/MSres
+
+#R^2 = proportion of variation in yi explained by xi
+SSr/SSt
+1-SSres/SSt
+
+#P-value Calculations for t(alp/2,n-2)
+2*pt(tstat0, df=n-2, lower.tail = FALSE)
+#p-value for t(alp/2,n-1)
+2*pt(tstat1, df=n-2, lower.tail = FALSE)
+
+pf(F0, 1,n-2, lower.tail = FALSE)
+
+anova(fit)
+confint(fit)
+```
+
+2.12a - Fit a simple linear regression model to the data.
+```{r}
+plot(xi,yi)
+lines(sort(xi),yH, col="red")
+```
+By looking at our regression line against the plot, we can see that it fits well.
+
+2.12b - Test for significance of regression.
+
+```{r, echo = FALSE}
+print(MSres)
+```
+Our MSres is relatively a small number, interpretting this, we can conclude that our linear fit has low variability, therefore the fit is accurate.
+
+
+2.12c - Plant management believes that an increase in average ambient temperature of 1 degree will increase average monthly steam consumption by
+10,000 lb. Do the data support this statement?
+
+```{r, echo = FALSE}
+alpha=0.1
+B1H - qt(1-alpha/2, n-2)*seB1H
+B1H + qt(1-alpha/2, n-2)*seB1H
+```
+The data does not support this statement with a 90% interval the increase does not include the expected 10,000.
+
+
+2.12d - Construct a 99% prediction interval on steam usage in a month with
+average ambient temperature of 58 ° 
+
+```{r, echo = FALSE}
+xo=58
+alp = 0.01
+y_est=B0H + B1H*xo
+
+#Lower
+lower = y_est-qt(1-alp/2, n-2)*sqrt( MSres*(1+1/n + (xo-mean(xi))^2 )/Sxx )
+lower
+#Upper
+upper = y_est+qt(1-alp/2, n-2)*sqrt( MSres*(1 + 1/n + (xo-mean(xi))^2 )/Sxx )
+upper
+```
+If the ambient temperature of the plant is 58 degrees we are 99% confident that the amount of steam usage would be between 526521 and 528997 pounts.
+
+

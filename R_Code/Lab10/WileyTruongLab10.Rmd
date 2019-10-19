@@ -1,0 +1,96 @@
+---
+title: "Lab 10"
+author: "David Wiley / Duy Truong"
+date: "March 20, 2019"
+output: pdf_document
+---
+
+### Problem 3.11
+Estimate the mean response and predict the future response at this new (x1,x2,x3,x4,x5) = (411, 22.5, 14.2, 40.3, 4.07). Interpret.
+
+```{r}
+dat=read.csv("/home/david/Documents/2019 Spring/Applied Regression/Labs_HW/Data_Sets2/Data Sets/Appendices/data-table-B7.csv", header = T)
+y = dat$y
+x1 = dat$x1
+x2 = dat$x2
+x3 = dat$x3
+x4 = dat$x4
+x5 = dat$x5
+
+fit = lm(y~x1+x2+x3+x4+x5, dat)
+summary(fit)
+```
+
+
+```{r}
+err = 8.065 # the residual standard error from summary table
+x0 = c(1, 411, 22.5, 14.2, 40.3, 4.07)
+y0 = sum(x0*fit$coefficients)
+y0
+```
+
+## t-critical value
+
+
+
+```{r}
+tcrit = qt(0.975, dim(dat)[1]-6)
+```
+
+## $X^{T}T$ Matrix
+
+
+```{r}
+x = cbind(1, dat[, 1:5])
+x = as.matrix(x)
+xtxi = solve(t(x) %*% x)
+```
+
+## CI width for mean response
+
+```{r}
+bm = sqrt(x0 %*% xtxi %*% x0) * tcrit * err
+bm
+```
+
+
+## 95% CI for mean response
+
+```{r}
+mean_conf = c(y0-bm, y0+bm)
+```
+
+The 95% CI for the mean response x1, x2, x3, x4, x5 = (411, 22.5, 14.2, 40.3, 4.07) is: 
+$$`r mean_conf`$$
+
+## PI for future response:
+
+```{r}
+bm2 = sqrt(1+x0 %*% xtxi %*% x0) * tcrit * err
+mean_pred = c(y0-bm2, y0+bm2)
+```
+
+The 95% PI is:
+$$`r mean_pred`$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

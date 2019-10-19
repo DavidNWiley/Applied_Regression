@@ -1,0 +1,310 @@
+---
+title: "STAT 4310 Final Project"
+author: "Duy Truong / David Wiley"
+date: "April 17, 2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+# Counter-Strike: Global Offensive - Player Titles  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Introduction:  
+Counter Strike: Global Offensive is a first-person shooter action game. The most popular competitive game mode involves ten people split into two teams of five of either counter-terrorists or terrorists. The games are played per map and per round consisting of a best of 30 round. 
+
+## Problem:  
+  
+Since its release in 2012 and consequent first Major Championship in 2013, the game has finished 14 Major Championships.
+We’ve gathered data on the top 157 players as of April 2019 in order to see if individual player statistics are a major contributing factor in the number of Major Championship titles are held by a player. Our null hypothesis being that we believe that the relationship between the player performance is related to the number of Major Championship Titles they have. Our regressors are gathered from a website called HLTV.org that keeps track of player’s performance throughout their entire career.  
+
+## Purpose:  
+  
+We decided to use all the statistics reported including Total Kills, the total amount of kills they have accumulated throughout their career. Headshot percentage, their career percentage of headshot kills over total kills. Total deaths, the career total of deaths. K/D ratio, a ratio of their career total kills to total kills. Damage per round, the career average of how much damage they inflict per round. Grenade damage per round, the career average of how much grenade damage they inflict per round. Maps and Rounds played; the career total times played. Kills, Deaths, and Assists per round, a career average of these based on round performance. Saved by and Saving Teammates, a career average of how many times a round either the player was saved or saving another teammate. Rating 1.0, HLTV’s personal rating of each individual player; and finally Major Titles, the amount of times a player has won a Major Championship.
+
+```{r, include=FALSE}
+dat=read.csv("/home/david/Downloads/CSGO_playerstats.csv", header = T)
+
+y = dat$Major.Titles
+x1 = dat$Total.kills
+x2 = dat$Headshot..
+x3 = dat$Total.deaths
+x4 = dat$K.D.Ratio
+x5 = dat$Damage...Round
+x6 = dat$Grenade.dmg...Round
+x7 = dat$Maps.played
+x8 = dat$Rounds.played
+x9 = dat$Kills...round
+x10= dat$Assists...round
+x11 = dat$Deaths...round
+x12 = dat$Saved.by.teammate...round
+x13 = dat$Saved.teammates...round
+x14 = dat$Rating.1.0
+```
+
+```{r, include=FALSE}
+fit = lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat)
+sumfit = summary(fit)
+anovafit = anova(fit)
+mod = model.matrix(fit)
+lev = hat(mod)
+```
+
+  
+## Multiple Linear Regression  
+  
+```{r, include= FALSE}
+# Coefficients of Multiple Linear Regression
+coeff = round(coef(fit), digits = 3)
+B0H = getElement(coeff, "(Intercept)")
+B1H = getElement(coeff, "x1")
+B2H = getElement(coeff, "x2")
+B3H = getElement(coeff, "x3")
+B4H = getElement(coeff, "x4")
+B5H = getElement(coeff, "x5")
+B6H = getElement(coeff, "x6")
+B7H = getElement(coeff, "x7")
+B8H = getElement(coeff, "x8")
+B9H = getElement(coeff, "x9")
+B10H = getElement(coeff, "x10")
+B11H = getElement(coeff, "x11")
+B12H = getElement(coeff, "x12")
+B13H = getElement(coeff, "x13")
+B14H = getElement(coeff, "x14")
+```
+  
+From our coefficients we have:  
+x1 = 3.198596e-04, representing the total amount of kills in the player's career  
+x2 = 1.739149e-01, a proportion of headshot kills to kills  
+x3 = -8.698547e-04, number of total deaths in the player's career  
+x4 = -4.916218e+00, the ratio of total kills to total deaths  
+x5 = -6.188700e-02, the amount of damage done per round  
+x6 =  4.799665e-02, the amount of damage done with grenades only per round  
+x7 =  3.472583e-02, the total amount of maps played in the player's career  
+x8 = -8.801416e-04, the total amount of rounds played in a  the player's career  
+x9 =  4.953407e+00, the proportion of kills per round  
+x10 = 1.188841e+01, the proportion of assist kills per round  
+x11 = 7.454971e+00, the proportion of deaths per round  
+x12 = -1.953565e+01, the proportion of times saved by a teammate per round  
+x13 = -1.070168e+01, the proportion of times saving a teammate per round  
+x14 = 2.114881e+00, HLTV's ranking system  
+These represent an increase or decrease in relationship to the number of Major Titles won, holding the other variables constant.  
+  
+Thus our multiple linear regression model is $$\hat{y}=(`r B0H`)+(`r B1H`)x_1+(`r B2H`)x_2+(`r B3H`)x_3+(`r B4H`)x_4+(`r B5H`)x_5+(`r B6H`)x_6+(`r B7H`)x_7+(`r B8H`)x_8+(`r B9H`)x_9+(`r B10H`)x_10+(`r B11H`)x_11+(`r B12H`)x_12+(`r B13H`)x_13+(`r B14H`)x_14$$  
+  
+## Plotting Data  
+  
+```{r}
+qqnorm(resid(fit))
+qqline(resid(fit))
+#new_dat01 = data.frame(dat)
+#new_dat02 = new_dat01[,-1]
+#ok = lm(Major.Titles~.,new_dat02)
+#ok_sum = summary(ok)
+#std_res= ok_sum$residuals/ok_sum$sigma
+#qqnorm(std_res)
+#qqline(std_res)
+#shapiro.test(ok_sum$residuals)
+#plot(ok$fitted.values, std_res)
+#abline(h=0, col ='red')
+shapiro.test(fit$residuals)
+```
+  
+Looking at the QQ Plot we can see a light-tail distribution and with the Shapiro test giving a p-value of 4.982e-05 we reject the null hypothesis which means our data is not normally distributed.  
+  
+
+```{r, include=FALSE}
+library(lmtest)
+library(lawstat)
+```
+  
+## Testing p-value  
+  
+```{r}
+runs.test(fit$residuals, alternative = "two.sided")
+bartels.test(fit$residuals, alternative = "two.sided")
+```
+  
+Both our runs and bartels test give a p-value larger than an $\alpha$ = 0.01 which means we fail to reject the null at 1% significance level. We interpret this to mean that the autocorrelation is 0 mean our residuals are unrelated.  
+  
+
+```{r, include=FALSE}
+# Index Plot of Residuals
+#plot(fit$residuals)
+# Standardized Residuals
+#stand = fit$residuals/sumfit$sigma
+#plot(stand)
+# Studentized Residuals
+#stud = fit$residuals/(sumfit$sigma*sqrt(1-lev))
+#plot(stud)
+# PRESS residuals
+#plot(fit$residuals/(rep(1,length(fit$residuals))-lev))
+```
+  
+## Testing for significance of Regression  
+  
+$H_0:\hat{\beta_0}=H_0:\hat{\beta_1}=...=H_0:\hat{\beta_j}=0$;  
+  
+$H_1:\hat{\beta_j}\neq{0}$  
+  
+```{r}
+# Test for significance of Regression.
+sumfit
+# P Value from summary(fit)
+pval = 1.378e-10
+pval
+```
+  
+Since the p-value is 1.378e-10 which is less than $\alpha$, we reject $H_0$ and conclude that the regression model is significant.  
+Since the regression model is significant we can say that there is a linear relationship between the response y and the regressors $x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14$  
+
+  
+## Contribution of Regressors  
+  
+```{r}
+sumfit
+```
+From the regression table we can see that the p-values of the intercept is significantly greater than $\alpha$ of 0.05. Therefore at a 5% significance level we can interpret that the intercept is equal to 0.
+  
+From the regression table we can see that the p-values of $x_1:x_6, x_8:x_{11}, x_{13}:x_{14}$ are  greater than $\alpha$ of 0.05. Therefore at a 5% significance level we can interpret that the regressor $x_1$ is not contributing significantly to the model of y.
+  
+We can also see that the p-values of $x_7, x_{12}$ is  less than $\alpha$ of 0.05. Therefore at a 5% significance level we can interpret that the regressor $x_7$ is contributing significantly to the model of y, given that all our other regressons are also in the model.
+  
+From this we can conclude that the regressors $x_7$ and $x_1$$_2$ are contributing significantly to our model of y, while the other regressors have little to not contribution to the model.
+  
+```{r}
+sumfit$r.squared
+sumfit$adj.r.squared
+```
+  
+Our $R^2$ = 0.41 which means that only 41% of our variance in total Major titles is explained by all regressors. Adding regressors that do not have an impact decreased our adjusted $R^2$ to 0.35.
+  
+```{r}
+newfit = lm(y~x7 + x12,dat)
+sumnewfit = summary(newfit)
+sumnewfit$r.squared
+sumnewfit$adj.r.squared
+```
+  
+With only $x_7$ and $x_1$$_2$ our $R^2$ = 0.29 and the adjusted $R^2$ = 0.28 which are values approximately 12% different than before which shows still that these regressors alone have the most impact on our original model.
+  
+## Confidence Interval  
+  
+```{r, include=FALSE}
+confi = confint(fit, level= .95)
+confi
+
+newconfi = confint(newfit, level = .95)
+newconfi
+```
+  
+Looking at the two most significant regressors alone, we can say with 95% confidence that our coefficient $x_7$ lies in between 1.17e-02 and 0.06 while $x_1$$_2$ lies between -3.5e+01 and -3.7 with all regressors.
+  
+While having only these two regressors in the model we can say with 95% confidence that our coefficient $x_7$ lies in between 0.002 and 0.003 while $x_1$$_2$ lies between -32.6 and -11.9
+  
+## Eigensystem and Measure of Multicollinearity  
+  
+```{r, include=FALSE}
+library(car)
+vif(fit)
+```
+  
+After testing for multicollinearity, we see there are high VIFs associated with $x_1, x_3, x_4, x_7, x_8$, and $x_9$, with $x_8$, total amount of rounds played, having the strongest level of multicollinearity at vif of 1724.
+  
+```{r}
+plot(dat)
+```
+```{r include=FALSE}
+cor(dat[,2:15])
+```
+  
+From both our plots and table we can see a very strong positive relatioship among our regressors. It is not surprising to see a strong positive relationship between $x_7$ and $x_8$ because in this game, the Maps consisnt of rounds, so as the number of Maps increase we can undoubtedly expect an increase in the number of rounds played. 
+  
+```{r, include=FALSE}
+stdx = scale(dat[,2:15])
+exx = eigen(t(stdx)%*%stdx)
+exx
+
+kappa = max(exx$values)/min(exx$values)
+kappa
+```
+  
+We calculated our kappa value as 11497, which is indicative of strong multicollinearity in our data set. 
+  
+## Condition Indices  
+  
+```{r, include=FALSE}
+max(exx$values)/exx$values
+```
+  
+exx Values for $x_1$$_1$, $x_1$$_2$, $x_1$$_3$, and $x_1$$_4$ are above 1000 leading us to believe that these regressors are involved with multicollinearity. Further testing is required.
+  
+```{r, include= FALSE}
+library(mctest)
+#xd <- dat[,10]
+#yd <- dat[,2]
+#mctest(xd,yd,type='b')
+#imcdiag(xd,yd,method='Klein')
+```
+  
+## Influential Observations  
+  
+```{r, include=FALSE}
+infl = influence.measures(fit)
+infl
+```
+  
+From calculating our table of influences, we can see there are 14 possible influential observations, these infuential observations are related to players Xantares, HEN1, Calyx, dupreeh, ropz, flusha, JW, gla1ve, pashaBiceps, Relyks, Dima, Karrigan, ngiN, and MSL. Interesting note is that 4 of these players, dupreeh, flusha, JW, and gla1ve have the max amount of possible Major Titles currently while PashaBiceps has 1 title and the rest have 0.
+  
+```{r, include=FALSE}
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-3,]))
+```
+
+```{r, include=FALSE}
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-11,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-15,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-25,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-27,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-56,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-67,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-86,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-120,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-126,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-139,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-147,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-149,]))
+summary(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat[-152,]))
+```
+  
+After removing an individual player, we saw no difference to the $R^2$ value or the y-intercept value across all removals. 
+  
+## Best Subset  
+  
+```{r}
+suppressMessages(library(olsrr))
+best = ols_step_best_subset(lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9+x10+x11+x12+x13+x14,dat))
+best
+plot(best)
+```
+
+
+```{r, include=FALSE}
+step(fit, direction = "backward")
+#step(lm(y~1, dat), scope=list(lower=lm(y~1, dat), upper=fit), direction ="forward")
+```
+  
+```{r}
+ols_plot_resid_qq(lm(y~x3+x7+x10+x11+x12+x13))
+ols_test_normality(lm(y~x3+x7+x10+x11+x12+x13))
+```  
+After reviewing our best fit models, it looks like the sixth model, $x_3, x_7, x_{10}, x_{11}, x_{12}, x_{13}$, would be our best fit model based from our data. This would then make our model to be:  
+$$\hat{y}=-11.1497-0.0013x_3+0.0241x_7+8.0514x_{10}+17.7394x_{11}-18.9007x_{12}-9.9036x_{13}$$
+  
+## Conclusion:  
+  
+Based on the data and our statistical analysis I believe it is safe to say that there is some association between player statistics and their amount of Major Titles they have. Most interestingly was that the two most contributing regressors were Maps played and the proportion of times saved by a teammate per round, the latter being a factor we hadn’t thought would ever be a major contributing regressor. Even more surprising was that albeit small, the proportion of teammates saved, had a negative impact in relationship to titles won. Maps played playing a role though is not as big as a surprise, those who have more play time should see marked increase in their gameplay. The R^2 value is not very high, but this is to be expected. Counter Strike: Global Offensive (CSGO) is a highly skill-based game, but also heavily relies on teamwork. Individuals can create opportunities, but in the end its your teammate that must follow up these plays. When a team as a whole performs well, we can see the raw data showing more wins in the upper echelon of players, especially those who have remained on a team for several majors.
+
+

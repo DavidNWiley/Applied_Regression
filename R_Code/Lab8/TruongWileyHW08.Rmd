@@ -1,0 +1,112 @@
+---
+title: "TruongWileyHW08"
+author: "Duy Truong"
+date: "February 18, 2019"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+dat=read.csv("C:\\Users\\Nick\\Documents\\0_Spring 2019\\Applied Regression\\Labs_HW\\Data_Sets\\B1.csv", header = T)
+dat
+plot(dat)
+```
+
+Problem 3.1a
+Fit a multiple linear regression model relating the number of games won
+to the team ’ s passing yardage (x2), the percentage of rushing plays (x7), and
+the opponents ’ yards rushing (x8).
+```{r, echo = FALSE}
+#Chapter 3: Multiple linear regression intro
+
+y=dat[,1]
+x1=dat[,3]
+x2=dat[,8]
+x3=dat[,9]
+
+X <- cbind(rep(1,length(y)),x1 ,x2, x3  ) 
+
+fit=lm(y~x1+x2+x3,dat)
+summary(fit)
+names(fit)
+fit$coefficients
+```
+
+For our coefficients we have x1 = 0.0059, x2 = 0.0034, and x3 = -0.3247. x1 represents the team's passing yardage, for every increase in the yardage holding x2 and x3 constant, there is a increase of the number of games won by 0.0059. x2 represents the percentage of a team's rushing plays, every increase of a teams rushing plays, holding x1 and x3 constant, increases the number of games won by 0.0034. x3 represents the opponents' rushing yards, holding x1 and x2 constant, the number of games won decreasesby 0.3247 for each yard rushed by the opponent.
+
+
+3.1 Calculate/Extract the hat matrix, coefficient and var-covariance matrix estimates.
+
+```{r}
+#hat matrix
+Hat_Matrix <- X %*% solve(t(X) %*% X) %*% t(X)
+# Coefficient
+solve(t(X) %*% X) %*% t(X)%*%y
+coef(fit)
+#Var-Covariance Matrix Estimaes
+vcov( fit )
+
+sum((Hat_Matrix*y)^2) / sum((y-mean(y))^2)
+```
+
+
+3.2 Using the results of Problem 3.1, show numerically that the square of the
+simple correlation coeffi cient between the observed values yi and the fitted
+values yˆi equals R2.
+
+```{r, echo = FALSE}
+
+sumfit=summary(fit)
+sumfit
+Coef_Cor = sum((Hat_Matrix %*% y - mean(y))^2) / sum((y-mean(y))^2)
+Coef_Cor
+
+sumfit$r.squared^2
+
+cor(y, Hat_Matrix %*% y)^2
+
+
+```
+
+\[r^{2}_{y,\hat{y}}=\left(\frac{Cov(y,\hat{y})}{\sqrt[2]{Var(y)Var(\hat{y}) }}\right)^{2}\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Cov(y,\hat{y})}{\sqrt[2]{Var(y)Var(\hat{y}) }} \frac{Cov(y,\hat{y})}{\sqrt[2]{Var(y)Var(\hat{y}) }}\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Cov(y,\hat{y}) Cov(y,\hat{y})}{Var(y)Var(\hat{y}) }\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Cov(\hat{y}+e,\hat{y})Cov(\hat{y}+e,\hat{y})}{Var(y)Var(\hat{y}) }\]
+
+\[r^{2}_{y,\hat{y}}=\frac{\left(Cov(\hat{y},\hat{y})+ Cov(\hat{y},e) \right) \left(Cov(\hat{y},\hat{y})+ Cov(\hat{y},e) \right) }{Var(y)Var(\hat{y}) }\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Cov(\hat{y},\hat{y})Cov(\hat{y},\hat{y})}{Var(y)Var(\hat{y}) }\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Var(\hat{y}) Var(\hat{y})}{Var(y)Var(\hat{y}) }\]
+
+\[r^{2}_{y,\hat{y}}=\frac{Var(\hat{y}) }{Var(y) }= \frac{\frac{1}{n} \sum_i^N (\hat{y_i} - \bar{\hat{y}})^2}{\frac{1}{n} \sum_i^N (y_i - \bar{y})^2} = \frac{\sum_i^N (\hat{y_i} - \bar{\hat{y}})^2}{\sum_i^N (y_i - \bar{y})^2} = \frac{ESS}{TSS} = R^{2} \]
+
+\[r^{2}_{y,\hat{y}}= R^{2} \]
+
+
+
+\[E(\hat{\beta })] 
+= E[(X^{T}X)^{-1}X^{T}(X\beta +\varepsilon )] 
+= \beta + E[(X^{T}X)^{-1}X^{T}\varepsilon )] 
+= \beta + E[(X^{T}X)^{-1}X^{T}\varepsilon | X)] 
+= \beta + E[(X^{T}X)^{-1}X^{T}E[\varepsilon | X])] 
+= \beta\]
+
+\[E(\hat{\beta }-\beta )(\hat{\beta }-\beta )^T] 
+= E[((X^{T}X)^{-1}X^{T}\varepsilon) ((X^{T}X)^{-1}X^{T}\varepsilon)^T] 
+= E[(X^{T}X)^{-1}X^{T}\varepsilon \varepsilon\ X(X^{T}X)^{-1}] 
+= E[(X^{T}X)^{-1}X^{T} \sigma ^2 X(X^{T}X)^{-1}] 
+= E[\sigma ^2(X^{T}X)^{-1}X^{T} X(X^{T}X)^{-1}] 
+= \sigma ^2(X^{T}X)^{-1}\]
+
+

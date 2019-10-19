@@ -1,0 +1,168 @@
+---
+title: "Lab 9"
+author: "David Wiley / Duy Truong"
+date: "February 27, 2019"
+output: pdf_document
+---
+
+# Problem 3.11: 
+## Parts a-d. Write down the estimated model. Interpret in the context of the problem whenever necessary.
+
+
+An engineer performed an experiment to determine the effect of $CO_2$ pressure,
+$CO_2$ temperature, peanut moisture, $CO_2$ flow rate, and peanut particle
+size on the total yield of oil per batch of peanuts. Table B.7 summarizes the
+experimental results.
+
+
+
+### a.
+
+Fit a multiple linear regression model relating yield to these regressors.
+
+
+
+```{r}
+
+# Reading in the data
+dat = read.csv("C:\\Users\\Nick\\Documents\\0_Spring 2019\\Applied Regression\\Labs_HW\\Data_Sets\\B7.csv", header = T)
+
+y = dat$y
+x1 = dat$x1
+x2 = dat$x2
+x3 = dat$x3
+x4 = dat$x4
+x5 = dat$x5
+n = length(y)
+p = length(dat[1,]) - 1
+
+# Fitting the data into a table
+fit = lm(y~., dat)
+sumfit = summary(fit)
+
+coeff = round(coef(fit), digits = 3)
+B0H = getElement(coeff, "(Intercept)")
+B1H = getElement(coeff, "x1")
+B2H = getElement(coeff, "x2")
+B3H = getElement(coeff, "x3")
+B4H = getElement(coeff, "x4")
+B5H = getElement(coeff, "x5")
+
+
+sumfit
+
+```
+
+
+The MLR model is:
+$$\hat{y}=(`r B0H`)+(`r B1H`)x_1+(`r B2H`)x_2+(`r B3H`)x_3+(`r B4H`)x_4+(`r B5H`)x_5$$
+
+
+### b.
+
+Test for significance of regression. What conclusions can you draw?
+
+$H_0:\hat{\beta_0}=H_0:\hat{\beta_1}=...=H_0:\hat{\beta_j}=0$;
+
+$H_1:\hat{\beta_j}\neq{0}$; for any j
+
+
+```{r}
+fitted = anova(fit)
+fitted
+
+SSr = sum(fitted[1:5,2])
+SSres = fitted[6,2]
+SSt = sum(getElement(fitted, "Sum Sq"))
+
+
+F0 = sumfit$fstatistic[1]
+# Long way: F0 = (SSr/p) / (SSres / (n-p-1))
+F0
+
+
+pvalue = 1 - pf(F0, p, n-p-1)
+pvalue
+
+```
+
+Since the p-value is less than $\alpha$, we reject $H_0$ and conclude that there is, in fact, a linear relationship between the regressors.
+
+
+### c.
+
+Use t-tests to assess the contribution of each regressor to the model. Discuss your findings.
+
+
+
+```{r}
+
+t_coefs = round(sumfit$coefficients[2:6,"t value"], digits = 3)
+
+# Critical t-value
+t_crit = round(qt(.975,n-p-1), digits = 3)
+
+
+```
+
+Our critical t-value to compare to is $`r t_crit`$. Our t-values for each regressor is: 
+$`r t_coefs`$
+
+Therefore, we can see we will reject $H_0:\hat{\beta_1}=0$, $H_0:\hat{\beta_2}=0$, $H_0:\hat{\beta_3}=0$, $H_0:\hat{\beta_5}=0$. But we do not reject $H_0:\hat{\beta_4}=0$ since it does equal $0$. This means $H_0:\hat{\beta_4}=0$ has $0$ contribution to our model. 
+
+
+### d.
+
+Calculate $R^2$ and $R^2_{ADJ}$ for this model. Compare these values to the $R^2$ and $R^2_{ADJ}$ for the multiple linear regression model relating yield to temperature and particle size. Discuss your results.
+
+
+```{r}
+
+# R^2 and R^2 adjusted for the model
+r_sq = round(sumfit$r.squared, digits = 3)
+r_sq_adj = round(sumfit$adj.r.squared, digits = 3)
+
+
+# R^2 and R^2 adjusted for C02 temperature (x2) and particle size (x5)
+sumfit_tps = summary(lm(y~x2+x5, dat))
+
+
+r_sq_tps = round(sumfit_tps$r.squared, digits = 3)
+r_sq_tps_adj = round(sumfit_tps$adj.r.squared, digits = 3)
+
+sumfit_tps
+
+```
+
+From the summary table we can see that $R^2=`r r_sq`$ for the entire model, which means that $`r r_sq*100`$% of the variation in $y$ can be explained by the model. Where as $R^2=`r r_sq_tps`$ for the temperature and particle size regressors. 
+For the entire model, $R^2_{ADJ}=`r r_sq_adj`$ , which means that $`r r_sq_adj*100`$% of the variation can be explained by the independent variables in the model. Where as, $R^2_{ADJ}=`r r_sq_tps_adj$ for the temperature and particle size regressors. 
+
+Both, the $R^2$ and $R^2_{ADJ}$ for just temperature and particle size, are smaller than for the entire model. This is reasonable because we are missing the other regressors in the model to account for the variation. The more regressors we include in the model from the data, NOT adding more regressors, the more variation we would be able to account for.
+
+
+
+
+### e.
+
+Find a 95% CI for the regression coefficient for temperature for both models in part d. Discuss any differences.
+
+
+```{r}
+
+#confint(fit, level = .95)
+
+#confint(lm(y~x2+x5, dat), level = .95)
+
+temp_CI_1 = c(B2H-t_crit*sumfit$coefficients[3, "Std. Error"], B2H+ t_crit*sumfit$coefficients[3, "Std. Error"])
+
+temp_CI_2 = c(sumfit_tps$coefficients[2]-t_crit*sumfit_tps$coefficients[2, "Std. Error"], sumfit_tps$coefficients[2]+ t_crit*sumfit_tps$coefficients[2, "Std. Error"])
+
+```
+
+The CI for temperature in the first model is:
+$$`r temp_CI_1`$$
+The CI for temperature in the second model is:
+$$`r temp_CI_2`$$
+The CI for temperature in the model limited to two regressors is larger than those in the model that includes all of the regressors from the data. This is because having less regressors that affect the model provides a less accurate CI which means we have to account for a little more variability in the values we accept. Since we have more regressors in the original model that we take into consideration, we have a smaller, more accurate confidence interval. 
+
+
