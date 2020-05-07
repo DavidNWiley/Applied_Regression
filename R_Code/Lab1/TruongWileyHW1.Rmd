@@ -3,8 +3,8 @@ title: "TruongDuy 1.23.19"
 author: "Duy Truong"
 date: "January 23, 2019"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,11 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
-$ \hat{y} = b_0 + b_1x $
+$$ \hat{y} = b_0 + b_1x $$
 
 
 ```{r, echo = FALSE}
-purity <- read.csv("C:\\Users\\Sundas Mohi-Truong\\Documents\\UHD\\SPRING 2019\\LinRegression\\Data Sets\\Chapter 2\\Problems\\data-prob-2-7.csv", header = TRUE)
+purity <- read.csv("/home/david/git_files/Applied_Regression/R_Code/Lab1/data-prob-2-7.csv", header = TRUE)
 
 ```
 
