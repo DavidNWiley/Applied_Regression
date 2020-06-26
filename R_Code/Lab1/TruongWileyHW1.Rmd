@@ -15,8 +15,9 @@ knitr::opts_chunk$set(echo = TRUE)
 $$ \hat{y} = b_0 + b_1x $$
 
 
+
 ```{r, echo = FALSE}
-purity <- read.csv("/home/david/git_files/Applied_Regression/R_Code/Lab1/data-prob-2-7.csv", header = TRUE)
+purity <- read.csv("/home/david/git/Applied_Regression/R_Code/Lab1/data-prob-2-7.csv", header = TRUE)
 
 ```
 
